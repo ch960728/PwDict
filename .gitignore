@@ -4,3 +4,9 @@ venv/
 data/vault.dat
 __pycache__/
 *.pyc
+*.pyo
+
+# PyInstaller
+build/
+dist/
+*.spec

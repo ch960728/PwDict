@@ -16,6 +16,7 @@ def get_base_dir() -> str:
 
 BASE_DIR = get_base_dir()
 VAULT_PATH = os.path.join(BASE_DIR, "data", "vault.dat")
+os.makedirs(os.path.join(BASE_DIR, "data"), exist_ok=True)  # 없으면 자동 생성
 AUTO_LOCK_MINUTES = 5
 
 ctk.set_appearance_mode("dark")
