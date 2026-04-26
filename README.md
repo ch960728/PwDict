@@ -12,11 +12,6 @@
 - 일정 시간 미사용 시 자동 잠금 (기본 5분)
 - vault 파일 내보내기 / 가져오기 (다른 PC 간 이전)
 
-## 스크린샷
-
-| 잠금 해제 | 검색 | 항목 추가 |
-|---|---|---|
-| ![unlock](docs/screenshot_unlock.png) | ![search](docs/screenshot_search.png) | ![form](docs/screenshot_form.png) |
 
 ## 설치 및 실행
 
