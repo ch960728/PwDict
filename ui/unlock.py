@@ -3,7 +3,7 @@ import customtkinter as ctk
 ctk.set_appearance_mode("dark")
 ctk.set_default_color_theme("blue")
 
-class UnlockWindow(ctk.CTk):
+class UnlockWindow(ctk.CTkToplevel):
     def __init__(self, is_new_vault: bool, on_submit):
         super().__init__()
         self._on_submit = on_submit

@@ -13,7 +13,8 @@ class SearchWindow(ctk.CTkToplevel):
         self.geometry("420x480")
         self.resizable(False, True)
         self._center()
-        self.protocol("WM_DELETE_WINDOW", self.withdraw)    # X 버튼 시 숨기기 (종료 아님)
+        self.protocol("WM_DELETE_WINDOW", self.withdraw)
+        self.after(100, self._bring_to_front)    # X 버튼 시 숨기기 (종료 아님)
 
         # 검색창
         search_frame = ctk.CTkFrame(self, fg_color="transparent")
@@ -35,6 +36,12 @@ class SearchWindow(ctk.CTkToplevel):
         ctk.CTkButton(bottom, text="+ 추가", width=80, command=self._on_add).pack(side="right")
 
         self._refresh()
+
+    def _bring_to_front(self):
+        self.attributes('-topmost', True)
+        self.lift()
+        self.focus_force()
+        self.grab_set()
 
     def _center(self):
         self.update_idletasks()
