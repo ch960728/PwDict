@@ -1,0 +1,6 @@
+docs/
+
+venv/
+data/vault.dat
+__pycache__/
+*.pyc
