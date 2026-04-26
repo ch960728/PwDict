@@ -1,4 +1,5 @@
 import os
+import shutil
 import json
 import uuid
 from datetime import datetime
@@ -108,3 +109,23 @@ class Vault:
     def delete_entry(self, entry_id: str) -> None:
         self._entries = [e for e in self._entries if e["id"] != entry_id]  # id 불일치 항목만 남기기
         self.save()
+
+    def export(self, dest_path: str) -> None:
+        shutil.copy2(self.path, dest_path)  # vault.dat를 선택한 경로에 그대로 복사
+
+    def import_from(self, src_path: str, src_password: str) -> bool:
+        # 외부 vault 파일을 src_password로 복호화 → 항목 전부 현재 vault에 append
+        try:
+            with open(src_path, "rb") as f:
+                raw = f.read()
+            salt = raw[:SALT_SIZE]
+            key, _ = derive_key(src_password, salt)
+            plaintext = decrypt(key, raw[SALT_SIZE:])
+            data = json.loads(plaintext.decode())
+            for entry in data["entries"]:
+                entry["id"] = str(uuid.uuid4())     # uuid 충돌 방지를 위해 새 id 발급
+                self._entries.append(entry)
+            self.save()
+            return True
+        except (InvalidTag, FileNotFoundError, json.JSONDecodeError):
+            return False

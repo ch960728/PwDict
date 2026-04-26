@@ -3,9 +3,11 @@ import pystray
 from PIL import Image, ImageDraw
 
 class TrayApp:
-    def __init__(self, on_open, on_lock, on_quit):
+    def __init__(self, on_open, on_lock, on_export, on_import, on_quit):
         self._on_open = on_open     # 트레이 "열기" 클릭 시
         self._on_lock = on_lock     # 트레이 "잠금" 클릭 시
+        self._on_export = on_export # 트레이 "내보내기" 클릭 시
+        self._on_import = on_import # 트레이 "가져오기" 클릭 시
         self._on_quit = on_quit     # 트레이 "종료" 클릭 시
         self._icon = None
 
@@ -19,6 +21,9 @@ class TrayApp:
     def _build_menu(self) -> pystray.Menu:
         return pystray.Menu(
             pystray.MenuItem("열기", lambda _, _item: self._on_open()),
+            pystray.Menu.SEPARATOR,
+            pystray.MenuItem("내보내기", lambda _, _item: self._on_export()),
+            pystray.MenuItem("가져오기", lambda _, _item: self._on_import()),
             pystray.Menu.SEPARATOR,
             pystray.MenuItem("잠금", lambda _, _item: self._on_lock()),
             pystray.MenuItem("종료", lambda _, _item: self._quit()),

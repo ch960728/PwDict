@@ -42,10 +42,10 @@ class EntryFormWindow(ctk.CTkToplevel):
         # 하단 버튼
         btn_frame = ctk.CTkFrame(self, fg_color="transparent")
         btn_frame.pack(fill="x", padx=20, pady=(0, 16))
-        ctk.CTkButton(btn_frame, text="저장", command=self._save).pack(side="left", expand=True, padx=4)
-        ctk.CTkButton(btn_frame, text="취소", command=self.destroy, fg_color="gray").pack(side="left", expand=True, padx=4)
+        ctk.CTkButton(btn_frame, text="저장", command=self._save, width=80).pack(side="left", expand=True, padx=4)
+        ctk.CTkButton(btn_frame, text="취소", command=self.destroy, fg_color="gray", width=80).pack(side="left", expand=True, padx=4)
         if entry:   # 수정 모드일 때만 삭제 버튼 표시
-            ctk.CTkButton(btn_frame, text="삭제", command=self._delete, fg_color="#c0392b").pack(side="left", expand=True, padx=4)
+            ctk.CTkButton(btn_frame, text="삭제", command=self._delete, fg_color="#c0392b", width=80).pack(side="left", expand=True, padx=4)
 
     def _add_field(self, parent, label: str, value: str) -> ctk.CTkEntry:
         row = ctk.CTkFrame(parent, fg_color="transparent")

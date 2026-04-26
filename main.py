@@ -1,4 +1,7 @@
+import os
+import sys
 import customtkinter as ctk
+from tkinter import filedialog, messagebox
 from core.vault import Vault
 from core.session import Session
 from ui.tray import TrayApp
@@ -6,7 +9,13 @@ from ui.unlock import UnlockWindow
 from ui.search import SearchWindow
 from ui.entry_form import EntryFormWindow
 
-VAULT_PATH = "data/vault.dat"
+def get_base_dir() -> str:
+    if getattr(sys, 'frozen', False):   # PyInstaller 빌드 시 실행 파일 위치 기준
+        return os.path.dirname(sys.executable)
+    return os.path.dirname(os.path.abspath(__file__))
+
+BASE_DIR = get_base_dir()
+VAULT_PATH = os.path.join(BASE_DIR, "data", "vault.dat")
 AUTO_LOCK_MINUTES = 5
 
 ctk.set_appearance_mode("dark")
@@ -29,6 +38,8 @@ class PwDictApp:
         self._tray = TrayApp(
             on_open=self._open,
             on_lock=self._lock,
+            on_export=self._export,
+            on_import=self._import,
             on_quit=self._quit,
         )
 
@@ -107,6 +118,53 @@ class PwDictApp:
         if self._search_win and self._search_win.winfo_exists():
             self._search_win.withdraw()
         self._show_unlock()
+
+    # ── 내보내기 / 가져오기 ───────────────────────────────────────────────────
+
+    def _export(self):
+        self._root.after(0, self._do_export)
+
+    def _do_export(self):
+        if self._session.is_locked:
+            messagebox.showwarning("PwDict", "먼저 잠금을 해제하세요.")
+            return
+        dest = filedialog.asksaveasfilename(
+            title="내보내기",
+            defaultextension=".dat",
+            filetypes=[("Vault 파일", "*.dat"), ("모든 파일", "*.*")],
+            initialfile="vault_backup.dat",
+        )
+        if dest:
+            self._vault.export(dest)
+            messagebox.showinfo("PwDict", f"내보내기 완료:\n{dest}")
+
+    def _import(self):
+        self._root.after(0, self._do_import)
+
+    def _do_import(self):
+        if self._session.is_locked:
+            messagebox.showwarning("PwDict", "먼저 잠금을 해제하세요.")
+            return
+        src = filedialog.askopenfilename(
+            title="가져올 vault 파일 선택",
+            filetypes=[("Vault 파일", "*.dat"), ("모든 파일", "*.*")],
+        )
+        if not src:
+            return
+        # 원본 파일의 마스터 패스워드 입력 창
+        self._import_src_path = src
+        self._import_pw_win = UnlockWindow(is_new_vault=False, on_submit=self._handle_import_password)
+        self._import_pw_win.title("PwDict — 가져오기: 원본 패스워드 입력")
+        self._import_pw_win.after(50, self._import_pw_win.grab_set)  # SearchWindow의 grab 해제 후 포커스 가져오기
+
+    def _handle_import_password(self, password: str):
+        success = self._vault.import_from(self._import_src_path, password)
+        self._import_pw_win.destroy()   # 성공/실패 상관없이 패스워드 창 닫기
+        if success:
+            self._refresh_search()
+            messagebox.showinfo("PwDict", "가져오기 완료! 항목이 추가되었습니다.")
+        else:
+            messagebox.showerror("PwDict", "패스워드가 올바르지 않거나 파일이 손상되었습니다.")
 
     def _on_auto_lock(self):
         self._root.after(0, self._do_lock)  # session 타이머 스레드 → 메인 스레드 위임
